@@ -2,74 +2,120 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Smart Recipe Chatbot</title>
+<title>Smart Recipe Finder</title>
 
 <style>
-    body {
-        font-family: 'Segoe UI', sans-serif;
-        background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+    * {
         margin: 0;
         padding: 0;
-        text-align: center;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+        height: 100vh;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     .container {
-        max-width: 700px;
-        margin: 60px auto;
-        background: white;
+        width: 90%;
+        max-width: 750px;
         padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(15px);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        text-align: center;
+        color: white;
     }
 
     h1 {
         margin-bottom: 10px;
-        color: #333;
+        font-size: 28px;
+    }
+
+    p {
+        margin-bottom: 20px;
+        opacity: 0.9;
+    }
+
+    .input-box {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
     }
 
     input {
-        width: 70%;
+        flex: 1;
         padding: 12px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        margin-top: 15px;
+        border-radius: 10px;
+        border: none;
+        outline: none;
+        font-size: 14px;
     }
 
     button {
         padding: 12px 18px;
-        margin-left: 10px;
         border: none;
-        background: #4CAF50;
+        border-radius: 10px;
+        background: #ff7a18;
         color: white;
-        border-radius: 8px;
+        font-weight: bold;
         cursor: pointer;
         transition: 0.3s;
     }
 
     button:hover {
-        background: #388E3C;
+        background: #ff5200;
+        transform: scale(1.05);
     }
 
     .results {
-        margin-top: 25px;
+        margin-top: 20px;
         text-align: left;
+        max-height: 350px;
+        overflow-y: auto;
     }
 
     .card {
-        background: #f9f9f9;
+        background: rgba(255, 255, 255, 0.2);
         padding: 15px;
         margin-bottom: 15px;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        border-radius: 15px;
+        transition: 0.3s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.3);
     }
 
     .match {
+        color: #00ffcc;
         font-weight: bold;
-        color: green;
     }
 
     .missing {
-        color: red;
+        color: #ff4d4d;
+    }
+
+    .steps {
+        font-size: 13px;
+        opacity: 0.9;
+    }
+
+    /* Scrollbar styling */
+    .results::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .results::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 10px;
     }
 </style>
 </head>
@@ -78,10 +124,12 @@
 
 <div class="container">
     <h1>🍳 Smart Recipe Finder</h1>
-    <p>Enter your ingredients:</p>
+    <p>Type your ingredients and discover recipes instantly</p>
 
-    <input type="text" id="ingredients" placeholder="e.g. rice, tomato, onion">
-    <button onclick="findRecipes()">Find Recipes</button>
+    <div class="input-box">
+        <input type="text" id="ingredients" placeholder="e.g. rice, tomato, onion">
+        <button onclick="findRecipes()">Search</button>
+    </div>
 
     <div class="results" id="results"></div>
 </div>
@@ -94,7 +142,7 @@ const recipes = {
     },
     "Omelette": {
         ingredients: ["egg", "onion", "salt", "oil"],
-        steps: "Beat eggs → add onion & salt → cook on pan"
+        steps: "Beat eggs → add onion & salt → cook"
     },
     "Fried Rice": {
         ingredients: ["rice", "vegetables", "oil", "soy sauce"],
@@ -102,11 +150,11 @@ const recipes = {
     },
     "Maggi": {
         ingredients: ["maggi", "water", "masala"],
-        steps: "Boil water → add maggi → add masala → cook"
+        steps: "Boil water → add maggi → cook with masala"
     },
     "Sandwich": {
         ingredients: ["bread", "butter", "vegetables"],
-        steps: "Apply butter → add veggies → toast"
+        steps: "Apply butter → add vegetables → toast"
     }
 };
 
@@ -132,7 +180,6 @@ function findRecipes() {
         });
     }
 
-    // Sort by best match
     results.sort((a, b) => b.match - a.match);
 
     let output = "";
@@ -144,14 +191,14 @@ function findRecipes() {
                 <h3>${r.name}</h3>
                 <p class="match">Match: ${r.match.toFixed(0)}%</p>
                 <p><b>Missing:</b> <span class="missing">${r.missing.join(", ") || "None"}</span></p>
-                <p><b>Steps:</b> ${r.steps}</p>
+                <p class="steps"><b>Steps:</b> ${r.steps}</p>
             </div>
             `;
         }
     });
 
     if (output === "") {
-        output = "<p>No recipes found. Try adding more ingredients.</p>";
+        output = "<p>No recipes found. Try more ingredients.</p>";
     }
 
     document.getElementById("results").innerHTML = output;
