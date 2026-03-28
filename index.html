@@ -2,56 +2,74 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Ingredient Suggestion Chatbot</title>
+<title>Smart Recipe Chatbot</title>
 
 <style>
     body {
-        font-family: Arial, sans-serif;
-        background: #f4f6f9;
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+        margin: 0;
+        padding: 0;
         text-align: center;
-        padding: 40px;
     }
 
     .container {
+        max-width: 700px;
+        margin: 60px auto;
         background: white;
-        padding: 25px;
-        border-radius: 10px;
-        width: 400px;
-        margin: auto;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     }
 
-    h2 {
+    h1 {
+        margin-bottom: 10px;
         color: #333;
     }
 
     input {
-        width: 80%;
-        padding: 10px;
-        margin: 10px 0;
-        border-radius: 5px;
+        width: 70%;
+        padding: 12px;
+        border-radius: 8px;
         border: 1px solid #ccc;
+        margin-top: 15px;
     }
 
     button {
-        padding: 10px 15px;
+        padding: 12px 18px;
+        margin-left: 10px;
+        border: none;
         background: #4CAF50;
         color: white;
-        border: none;
-        border-radius: 5px;
+        border-radius: 8px;
         cursor: pointer;
+        transition: 0.3s;
     }
 
     button:hover {
-        background: #45a049;
+        background: #388E3C;
     }
 
-    #output {
-        margin-top: 20px;
+    .results {
+        margin-top: 25px;
         text-align: left;
-        padding: 10px;
-        background: #eef;
-        border-radius: 5px;
+    }
+
+    .card {
+        background: #f9f9f9;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .match {
+        font-weight: bold;
+        color: green;
+    }
+
+    .missing {
+        color: red;
     }
 </style>
 </head>
@@ -59,65 +77,84 @@
 <body>
 
 <div class="container">
-    <h2>🍳 Ingredient Chatbot</h2>
-
-    <p>Enter ingredients (comma separated):</p>
+    <h1>🍳 Smart Recipe Finder</h1>
+    <p>Enter your ingredients:</p>
 
     <input type="text" id="ingredients" placeholder="e.g. rice, tomato, onion">
-    <br>
-    <button onclick="suggestRecipes()">Suggest Recipes</button>
+    <button onclick="findRecipes()">Find Recipes</button>
 
-    <div id="output"></div>
+    <div class="results" id="results"></div>
 </div>
 
 <script>
 const recipes = {
     "Tomato Rice": {
-        ingredients: ["rice", "tomato", "onion"],
-        steps: "Cook rice → fry onion & tomato → mix together"
+        ingredients: ["rice", "tomato", "onion", "oil", "salt"],
+        steps: "Cook rice → fry onion & tomato → mix → add salt"
     },
     "Omelette": {
-        ingredients: ["egg", "onion", "salt"],
+        ingredients: ["egg", "onion", "salt", "oil"],
         steps: "Beat eggs → add onion & salt → cook on pan"
     },
     "Fried Rice": {
-        ingredients: ["rice", "vegetables", "oil"],
+        ingredients: ["rice", "vegetables", "oil", "soy sauce"],
         steps: "Heat oil → add vegetables → add rice → stir fry"
     },
     "Maggi": {
         ingredients: ["maggi", "water", "masala"],
-        steps: "Boil water → add maggi → add masala → cook 2 min"
+        steps: "Boil water → add maggi → add masala → cook"
+    },
+    "Sandwich": {
+        ingredients: ["bread", "butter", "vegetables"],
+        steps: "Apply butter → add veggies → toast"
     }
 };
 
-function suggestRecipes() {
+function findRecipes() {
     let input = document.getElementById("ingredients").value.toLowerCase();
     let userIngredients = input.split(",").map(i => i.trim());
 
-    let output = "<h3>Results:</h3>";
-    let found = false;
+    let results = [];
 
     for (let dish in recipes) {
         let required = recipes[dish].ingredients;
 
+        let matched = required.filter(item => userIngredients.includes(item));
+        let matchPercent = (matched.length / required.length) * 100;
+
         let missing = required.filter(item => !userIngredients.includes(item));
 
-        if (missing.length === 0) {
-            output += `<p><b>✅ You can make ${dish}</b><br>
-            Steps: ${recipes[dish].steps}</p>`;
-            found = true;
-        } else if (missing.length <= 2) {
-            output += `<p><b>⚠️ Almost! ${dish}</b><br>
-            Missing: ${missing.join(", ")}</p>`;
-            found = true;
+        results.push({
+            name: dish,
+            match: matchPercent,
+            missing: missing,
+            steps: recipes[dish].steps
+        });
+    }
+
+    // Sort by best match
+    results.sort((a, b) => b.match - a.match);
+
+    let output = "";
+
+    results.forEach(r => {
+        if (r.match > 30) {
+            output += `
+            <div class="card">
+                <h3>${r.name}</h3>
+                <p class="match">Match: ${r.match.toFixed(0)}%</p>
+                <p><b>Missing:</b> <span class="missing">${r.missing.join(", ") || "None"}</span></p>
+                <p><b>Steps:</b> ${r.steps}</p>
+            </div>
+            `;
         }
+    });
+
+    if (output === "") {
+        output = "<p>No recipes found. Try adding more ingredients.</p>";
     }
 
-    if (!found) {
-        output += "<p>❌ No matching recipes found. Try different ingredients.</p>";
-    }
-
-    document.getElementById("output").innerHTML = output;
+    document.getElementById("results").innerHTML = output;
 }
 </script>
 
