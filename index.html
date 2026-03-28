@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ingredient Suggestion Chatbot</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f6f9;
+        text-align: center;
+        padding: 40px;
+    }
+
+    .container {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        width: 400px;
+        margin: auto;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+        color: #333;
+    }
+
+    input {
+        width: 80%;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    button {
+        padding: 10px 15px;
+        background: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #45a049;
+    }
+
+    #output {
+        margin-top: 20px;
+        text-align: left;
+        padding: 10px;
+        background: #eef;
+        border-radius: 5px;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>🍳 Ingredient Chatbot</h2>
+
+    <p>Enter ingredients (comma separated):</p>
+
+    <input type="text" id="ingredients" placeholder="e.g. rice, tomato, onion">
+    <br>
+    <button onclick="suggestRecipes()">Suggest Recipes</button>
+
+    <div id="output"></div>
+</div>
+
+<script>
+const recipes = {
+    "Tomato Rice": {
+        ingredients: ["rice", "tomato", "onion"],
+        steps: "Cook rice → fry onion & tomato → mix together"
+    },
+    "Omelette": {
+        ingredients: ["egg", "onion", "salt"],
+        steps: "Beat eggs → add onion & salt → cook on pan"
+    },
+    "Fried Rice": {
+        ingredients: ["rice", "vegetables", "oil"],
+        steps: "Heat oil → add vegetables → add rice → stir fry"
+    },
+    "Maggi": {
+        ingredients: ["maggi", "water", "masala"],
+        steps: "Boil water → add maggi → add masala → cook 2 min"
+    }
+};
+
+function suggestRecipes() {
+    let input = document.getElementById("ingredients").value.toLowerCase();
+    let userIngredients = input.split(",").map(i => i.trim());
+
+    let output = "<h3>Results:</h3>";
+    let found = false;
+
+    for (let dish in recipes) {
+        let required = recipes[dish].ingredients;
+
+        let missing = required.filter(item => !userIngredients.includes(item));
+
+        if (missing.length === 0) {
+            output += `<p><b>✅ You can make ${dish}</b><br>
+            Steps: ${recipes[dish].steps}</p>`;
+            found = true;
+        } else if (missing.length <= 2) {
+            output += `<p><b>⚠️ Almost! ${dish}</b><br>
+            Missing: ${missing.join(", ")}</p>`;
+            found = true;
+        }
+    }
+
+    if (!found) {
+        output += "<p>❌ No matching recipes found. Try different ingredients.</p>";
+    }
+
+    document.getElementById("output").innerHTML = output;
+}
+</script>
+
+</body>
+</html>
